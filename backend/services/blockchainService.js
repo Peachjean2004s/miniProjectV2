@@ -178,5 +178,4 @@ export async function getLotTrackHistoryFromBlockchain(lotId) {
   return { lot, steps }
 }
 
-// ── ชื่อเดิม (compat) ─────────────────────────────────────────────────────────
 export { getLotTrackHistoryFromBlockchain as getLotTrackHistory }

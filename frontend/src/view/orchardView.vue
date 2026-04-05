@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import RecipientPicker from '@/components/RecipientPicker.vue'
+import VarietyPicker from '@/components/VarietyPicker.vue'
 import {
   txRegisterLot, txInitiateTransfer,
   STATUS_LABEL, STATUS_STYLE, hasPendingTransfer, parseContractError, formatLotId, assertWalletMatch,
@@ -217,11 +218,11 @@ function disconnect() {
 
           <div class="field">
             <label>VARIETY (สายพันธุ์)</label>
-            <input v-model="variety" type="text" placeholder="เช่น อีดอ, พวงทอง" />
+            <VarietyPicker v-model="variety" />
           </div>
           <div class="field">
             <label>WEIGHT KG (น้ำหนัก)</label>
-            <input v-model="weightKg" type="number" placeholder="เช่น 500" min="1" />
+            <input v-model="weightKg" type="number" placeholder="e.g. 500" min="1" />
           </div>
 
           <!-- On-chain preview -->
