@@ -14,8 +14,8 @@ const isConnecting = ref(false)
 function trackLot() {
   const raw = lotNumber.value.trim()
   if (!raw) return
-  // รองรับเฉพาะ: 0001 | LOT#0001 | LOT #0001 | LOT # 0001
-  const match = raw.match(/^(?:LOT\s*#?\s*)?(\d+)$/i)
+
+  const match = raw.match(/^(?:LOT\s*#?\s*)?(\d{2,})$/i)
   if (!match) {
     statusMsg.value = 'Format: 0001 | LOT0001 | LOT#0001 | LOT #0001 | LOT # 0001'
     statusType.value = 'error'

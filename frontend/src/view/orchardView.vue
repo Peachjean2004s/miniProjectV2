@@ -7,13 +7,15 @@ import {
   txRegisterLot, txInitiateTransfer,
   STATUS_LABEL, STATUS_STYLE, hasPendingTransfer, parseContractError, formatLotId, assertWalletMatch,
 } from '@/utils/blockchain'
-import { fetchOrchardLots, recordLotEvent } from '@/utils/api'
+
+import { fetchOrchardLots, recordLotEvent, getDisplayNames } from '@/utils/api'
 
 const router = useRouter()
 const walletAddress = ref('')
 const activePage = ref('lots')
 const lots = ref([])
 const isLoadingLots = ref(false)
+const companyNames = ref({})
 
 // Create Lot
 const variety = ref('')
@@ -39,13 +41,29 @@ async function refreshLots() {
   isLoadingLots.value = true
   try {
     const all = await fetchOrchardLots(walletAddress.value)
-    // แสดงเฉพาะ lots ที่ยังเป็น currentOwner (ยังไม่ถูก transfer ออกไป)
     lots.value = all.filter(l =>
-      l.currentOwner.toLowerCase() === walletAddress.value.toLowerCase() && !hasPendingTransfer(l)
+      l.currentOwner.toLowerCase() === walletAddress.value.toLowerCase()
     )
+
+    const pendingAddresses = lots.value
+      .filter(l => hasPendingTransfer(l) && l.nextOwner)
+      .map(l => l.nextOwner)
+    
+    const uniqueAddresses = [...new Set(pendingAddresses)]
+
+    if (uniqueAddresses.length > 0) {
+      const namesMap = await getDisplayNames(uniqueAddresses)
+      companyNames.value = { ...companyNames.value, ...namesMap }
+    }
   }
   catch (e) { console.error('fetchOrchardLots:', e) }
   finally { isLoadingLots.value = false }
+}
+
+const getCompanyName = (addr) => {
+  if (!addr) return ''
+  const name = companyNames.value[addr] || companyNames.value[addr.toLowerCase()]
+  return name ? name : shortAddress(addr)
 }
 
 const shortAddress = (addr) => addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : ''
@@ -200,7 +218,7 @@ function disconnect() {
             </div>
             <div v-if="hasPendingTransfer(lot)" class="pending-transfer">
               <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
-              Pending transfer to {{ shortAddress(lot.nextOwner) }}
+              Pending transfer to {{ getCompanyName(lot.nextOwner) }}
             </div>
           </div>
         </div>
